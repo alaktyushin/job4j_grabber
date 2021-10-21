@@ -18,18 +18,13 @@ import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
 
-    private int interval;
     private Connection connection;
     private final DateTimeFormatter formatter =
             DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
-    private void setInterval(int interval) {
-        this.interval = interval;
-    }
-
     public static void main(String[] args) {
         AlertRabbit rabbit = new AlertRabbit();
-        rabbit.init();
+        int interval = rabbit.init();
         try {
             List<Long> store = new ArrayList<>();
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -41,7 +36,7 @@ public class AlertRabbit {
                     .usingJobData(data)
                     .build();
             SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(rabbit.interval)
+                    .withIntervalInSeconds(interval)
                     .repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
@@ -72,7 +67,7 @@ public class AlertRabbit {
         }
     }
 
-    private void init() {
+    private int init() {
         InputStream in = AlertRabbit.class
                 .getClassLoader()
                 .getResourceAsStream("rabbit.properties");
@@ -88,7 +83,7 @@ public class AlertRabbit {
         } catch (IOException | ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
-        setInterval(Integer.parseInt(config.getProperty("rabbit.interval")));
+        return Integer.parseInt(config.getProperty("rabbit.interval"));
     }
 
     private void pushTimeWhenJobClosed() {
