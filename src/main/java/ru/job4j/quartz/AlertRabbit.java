@@ -23,28 +23,27 @@ public class AlertRabbit {
     public static void main(String[] args) {
         AlertRabbit rabbit = new AlertRabbit();
         Properties properties = rabbit.getPropertiesFromFile(rabbit.filename);
-        Connection connection = rabbit.initConnection(properties);
-        int interval = Integer.parseInt(properties.getProperty("rabbit.interval"));
-        try {
-            Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-            scheduler.start();
-            JobDataMap data = new JobDataMap();
-            data.put("connection", connection);
-            JobDetail job = newJob(Rabbit.class)
-                    .usingJobData(data)
-                    .build();
-            SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(interval)
-                    .repeatForever();
-            Trigger trigger = newTrigger()
-                    .startNow()
-                    .withSchedule(times)
-                    .build();
-            scheduler.scheduleJob(job, trigger);
-            Thread.sleep(10000);
-            scheduler.shutdown();
-            System.out.println("Thread stopped at " + LocalDateTime.now().format(rabbit.formatter));
-        } catch (SchedulerException | InterruptedException e) {
+        try (Connection connection = rabbit.initConnection(properties)) {
+            int interval = Integer.parseInt(properties.getProperty("rabbit.interval"));
+                Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+                scheduler.start();
+                JobDataMap data = new JobDataMap();
+                data.put("connection", connection);
+                JobDetail job = newJob(Rabbit.class)
+                        .usingJobData(data)
+                        .build();
+                SimpleScheduleBuilder times = simpleSchedule()
+                        .withIntervalInSeconds(interval)
+                        .repeatForever();
+                Trigger trigger = newTrigger()
+                        .startNow()
+                        .withSchedule(times)
+                        .build();
+                scheduler.scheduleJob(job, trigger);
+                Thread.sleep(10000);
+                scheduler.shutdown();
+                System.out.println("Thread stopped at " + LocalDateTime.now().format(rabbit.formatter));
+        } catch (SQLException | SchedulerException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -63,6 +62,7 @@ public class AlertRabbit {
             try (PreparedStatement statement =
                          connection.prepareStatement("insert into rabbit(created_date) values (?)")) {
                 statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+                System.out.println(connection.getMetaData().getURL());
                 statement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
