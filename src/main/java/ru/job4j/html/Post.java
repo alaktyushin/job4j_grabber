@@ -22,8 +22,6 @@ public class Post {
         this.created = created;
     }
 
-
-
     @Override
     public String toString() {
         return "Post{"
