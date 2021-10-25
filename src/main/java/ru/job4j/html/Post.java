@@ -9,17 +9,17 @@ public class Post {
     private String title;
     private String link;
     private String description;
-    private LocalDateTime created;
+    private LocalDateTime localDateTime;
 
     public Post() {
     }
 
-    public Post(int id, String title, String link, String description, LocalDateTime created) {
+    public Post(int id, String title, String link, String description, LocalDateTime localDateTime) {
         this.id = id;
         this.title = title;
         this.link = link;
         this.description = description;
-        this.created = created;
+        this.localDateTime = localDateTime;
     }
 
 
@@ -31,7 +31,7 @@ public class Post {
                 + ", title='" + title + '\''
                 + ", link='" + link + '\''
                 + ", description='" + description + '\''
-                + ", created=" + created
+                + ", created=" + localDateTime
                 + '}';
     }
 
@@ -46,12 +46,12 @@ public class Post {
                 post.id
                 && Objects.equals(title, post.title)
                 && Objects.equals(link, post.link)
-                && Objects.equals(created, post.created);
+                && Objects.equals(localDateTime, post.localDateTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, link, created);
+        return Objects.hash(id, title, link, localDateTime);
     }
 
     public String getTitle() {
@@ -78,11 +78,11 @@ public class Post {
         this.description = description;
     }
 
-    public LocalDateTime getCreated() {
-        return created;
+    public LocalDateTime getLocalDateTime() {
+        return localDateTime;
     }
 
-    public void setCreated(LocalDateTime created) {
-        this.created = created;
+    public void setLocalDateTime(LocalDateTime localDateTime) {
+        this.localDateTime = localDateTime;
     }
 }
