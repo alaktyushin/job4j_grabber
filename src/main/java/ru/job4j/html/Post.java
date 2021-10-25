@@ -52,6 +52,14 @@ public class Post {
         return Objects.hash(id, title, link, created);
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return title;
     }
