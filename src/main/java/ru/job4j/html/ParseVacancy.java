@@ -29,7 +29,7 @@ public class ParseVacancy {
                     .first())
                     .text()
                     .split(" \\[")[0];
-            rsl.setLocalDateTime(parser
+            rsl.setCreated(parser
                     .parse(date));
         } catch (IOException e) {
             e.printStackTrace();

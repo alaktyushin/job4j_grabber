@@ -39,7 +39,7 @@ public class SqlRuParse {
                             .first())
                     .text()
                     .split(" \\[")[0];
-            rsl.setLocalDateTime(dateTimeParser
+            rsl.setCreated(dateTimeParser
                     .parse(date));
         } catch (IOException e) {
             e.printStackTrace();
