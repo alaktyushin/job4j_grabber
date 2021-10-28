@@ -29,16 +29,31 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     private static Properties getPropertiesFromFile (String propsFile) {
-        InputStream in = PsqlStore.class
-                .getClassLoader()
-                .getResourceAsStream(propsFile);
         Properties config = new Properties();
-        try {
+        try (InputStream in = PsqlStore.class
+                .getClassLoader()
+                .getResourceAsStream(propsFile)) {
             config.load(in);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return config;
+    }
+
+    private Post getPost(ResultSet resultSet) {
+        Post post = null;
+        try {
+            post = new Post(
+                    resultSet.getInt("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("text"),
+                    resultSet.getString("link"),
+                    resultSet.getTimestamp("created").toLocalDateTime()
+            );
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return post;
     }
 
     @Override
@@ -69,13 +84,7 @@ public class PsqlStore implements Store, AutoCloseable {
             statement.execute();
             try (ResultSet rs = statement.getResultSet()) {
                 while (rs.next()) {
-                    Post item = new Post(
-                            rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("text"),
-                            rs.getString("link"),
-                            rs.getTimestamp("created").toLocalDateTime()
-                    );
+                    Post item = getPost(rs);
                     rsl.add(item);
                 }
             }
@@ -94,13 +103,7 @@ public class PsqlStore implements Store, AutoCloseable {
             statement.execute();
             try (ResultSet rs = statement.getResultSet()) {
                 if (rs.next()) {
-                    post = new Post(
-                            rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("text"),
-                            rs.getString("link"),
-                            rs.getTimestamp("created").toLocalDateTime()
-                    );
+                    post = getPost(rs);
                 }
             }
         } catch (SQLException e) {
