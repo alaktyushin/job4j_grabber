@@ -42,7 +42,10 @@ public class AlertRabbit {
                 scheduler.scheduleJob(job, trigger);
                 Thread.sleep(10000);
                 scheduler.shutdown();
-                System.out.println("Thread stopped at " + LocalDateTime.now().format(rabbit.formatter));
+                System.out.println(
+                        "Thread stopped at "
+                                + LocalDateTime.now().format(rabbit.formatter)
+                );
         } catch (SQLException | SchedulerException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -60,7 +63,9 @@ public class AlertRabbit {
             JobDataMap dataMap = context.getJobDetail().getJobDataMap();
             Connection connection = (Connection) dataMap.get("connection");
             try (PreparedStatement statement =
-                         connection.prepareStatement("insert into rabbit(created_date) values (?)")) {
+                         connection.prepareStatement(
+                                 "insert into rabbit(created_date) values (?)"
+                         )) {
                 statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
                 statement.executeUpdate();
             } catch (SQLException e) {
@@ -84,7 +89,7 @@ public class AlertRabbit {
         return connection;
     }
 
-    private Properties getPropertiesFromFile (String propsFile) {
+    private Properties getPropertiesFromFile(String propsFile) {
         InputStream in = AlertRabbit.class
                 .getClassLoader()
                 .getResourceAsStream(propsFile);

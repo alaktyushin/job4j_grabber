@@ -40,7 +40,8 @@ public class ParseVacancy {
     public static void main(String[] args) {
         ParseVacancy parseVacancy = new ParseVacancy();
         String url =
-                "https://www.sql.ru/forum/1325330/lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t";
+                "https://www.sql.ru/forum/1325330"
+                        + "/lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t";
         Post post = parseVacancy.getPost(url);
         Post postShort = parseVacancy.getPost("https://www.sql.ru/forum/1325330");
         Post postWrong = parseVacancy.getPost("https://www.sql.ru/forum/13");

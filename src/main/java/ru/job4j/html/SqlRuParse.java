@@ -4,6 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.Parse;
 import ru.job4j.grabber.utils.DateTimeParser;
 import ru.job4j.grabber.utils.SqlRuDateTimeParser;
 
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SqlRuParse {
+public class SqlRuParse implements Parse {
 
     private final DateTimeParser dateTimeParser;
 
@@ -47,9 +48,14 @@ public class SqlRuParse {
         return rsl;
     }
 
-    private List<Post> list(String url) throws IOException {
+    public List<Post> list(String url) {
         List<Post> rsl = new ArrayList<>();
-        Document doc = Jsoup.connect(url).get();
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(url).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         String cssQuery = ".postslisttopic";
         Elements row = doc.select(cssQuery);
         for (Element td : row) {
@@ -61,14 +67,13 @@ public class SqlRuParse {
         return rsl;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         DateTimeParser dtp = new SqlRuDateTimeParser();
         SqlRuParse parseForum = new SqlRuParse(dtp);
         String url = "https://www.sql.ru/forum/job-offers";
         List<Post> postList = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
-            String urlN = url. concat("/").concat(String.valueOf(i));
-            /*parseForum.parsePage(urlN, cssQuery);*/
+            String urlN = url.concat("/").concat(String.valueOf(i));
             postList.addAll(parseForum.list(urlN));
         }
         System.out.println(postList.size() + " vacancies loaded.");

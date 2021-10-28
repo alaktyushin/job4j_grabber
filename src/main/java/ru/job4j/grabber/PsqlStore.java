@@ -12,8 +12,8 @@ import java.util.Properties;
 
 public class PsqlStore implements Store, AutoCloseable {
 
+    private static final String FILENAME = "app.properties";
     private Connection cnn;
-    private static final String filename = "app.properties";
 
     public PsqlStore(Properties cfg) {
         try {
@@ -28,7 +28,7 @@ public class PsqlStore implements Store, AutoCloseable {
         }
     }
 
-    private static Properties getPropertiesFromFile (String propsFile) {
+    private static Properties getPropertiesFromFile(String propsFile) {
         Properties config = new Properties();
         try (InputStream in = PsqlStore.class
                 .getClassLoader()
@@ -59,7 +59,8 @@ public class PsqlStore implements Store, AutoCloseable {
     @Override
     public void save(Post post) {
         try (PreparedStatement statement =
-                cnn.prepareStatement("insert into post(name, text, link, created) values (?, ?, ?, ?)",
+                cnn.prepareStatement(
+                        "insert into post(name, text, link, created) values (?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, post.getTitle());
             statement.setString(2, post.getDescription());
@@ -120,7 +121,7 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     public static void main(String[] args) {
-        Properties config = getPropertiesFromFile(filename);
+        Properties config = getPropertiesFromFile(FILENAME);
         Store store = new PsqlStore(config);
         Post post = new Post(0, "post", "www.sql.ru", "description", LocalDateTime.now());
         store.save(post);
