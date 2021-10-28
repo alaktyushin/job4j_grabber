@@ -47,26 +47,6 @@ public class SqlRuParse {
         return rsl;
     }
 
-    private void parsePage(String url, String cssQuery) throws IOException {
-        Document doc = Jsoup.connect(url).get();
-        Elements row = doc.select(cssQuery);
-        System.out.println(
-                System.lineSeparator()
-                        + "Parsing URL " + url
-                        + System.lineSeparator()
-        );
-        for (Element td : row) {
-            Element href = td.child(0);
-            Element parent = td.parent();
-            System.out.println(href.attr("href"));
-            System.out.println(href.text());
-            if (parent != null) {
-                String strDate = parent.children().get(5).text();
-                System.out.println(dateTimeParser.parse(strDate));
-            }
-        }
-    }
-
     private List<Post> list(String url) throws IOException {
         List<Post> rsl = new ArrayList<>();
         Document doc = Jsoup.connect(url).get();
