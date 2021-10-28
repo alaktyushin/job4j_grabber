@@ -4,10 +4,12 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import ru.job4j.grabber.utils.DateTimeParser;
 import ru.job4j.grabber.utils.SqlRuDateTimeParser;
+import ru.job4j.html.Post;
 import ru.job4j.html.SqlRuParse;
 
 import java.io.*;
-import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static org.quartz.JobBuilder.newJob;
@@ -18,7 +20,7 @@ public class Grabber implements Grab {
     private final Properties cfg = new Properties();
 
     public Store store() {
-        return null;
+        return new PsqlStore(cfg);
     }
 
     public Scheduler scheduler() throws SchedulerException {
@@ -30,7 +32,7 @@ public class Grabber implements Grab {
     public void cfg() throws IOException {
 
         try (InputStream in =
-                     new FileInputStream(new File("./src/main/resources/app.properties"))) {
+                     new FileInputStream("./src/main/resources/app.properties")) {
             cfg.load(in);
             System.out.println(cfg);
         }
@@ -57,14 +59,32 @@ public class Grabber implements Grab {
     public static class GrabJob implements Job {
 
         @Override
-        public void execute(JobExecutionContext context) throws JobExecutionException {
+        public void execute(JobExecutionContext context) {
             JobDataMap map = context.getJobDetail().getJobDataMap();
             Store store = (Store) map.get("store");
             Parse parse = (Parse) map.get("parse");
-            /* TODO impl logic */
             System.out.println("Let's get the party started!");
-            System.out.println(map.get("store"));
-            System.out.println(((Parse) map.get("parse")).toString());
+            String url = "https://www.sql.ru/forum/job-offers";
+            List<Post> postList = new ArrayList<>();
+            for (int i = 1; i <= 30000; i++) {
+                String urlN = url.concat("/").concat(String.valueOf(i));
+                List<Post> list = parse.list(urlN);
+                if (list.size() <= 3) {
+                    break;
+                }
+                postList.addAll(list);
+            }
+            System.out.println(postList.size() + " vacancies parsed.");
+            for (var el : postList) {
+                if (el.getTitle().toLowerCase().contains("java")
+                        && !el.getTitle().toLowerCase().contains("javascript")) {
+                    store.save(el);
+                }
+            }
+            System.out.println(
+                    "There's "
+                            + store.getAll().size()
+                            + " vacancies in the database regarding Java.");
         }
     }
 
